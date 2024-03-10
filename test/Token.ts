@@ -10,20 +10,27 @@ describe("Token contract", function () {
     const Token = await ethers.getContractFactory('Token');
     token = await Token.deploy("DApp University", 'DAPP', 1000000);
   })
-  it("has correct name", async () => {
-    expect(await token.name()).to.equal('DApp University');
+  describe('Deployment', ()=> {
+    const name = 'DApp University';
+    const symbol = 'DAPP';
+    const decimals = 18;
+    const totalSupply = tokens('1000000');
+
+    it("has correct name", async () => {
+      expect(await token.name()).to.equal(name);
+    });
+  
+    it("has correct symbol", async () => {
+      expect(await token.symbol()).to.equal(symbol);
+    });
+  
+    it('has correct decimals', async () => {
+      expect(await token.decimals()).to.equal(decimals);
+    })
+  
+    it('has correct total supply', async () => {
+      expect(await token.totalSupply()).to.equal(totalSupply);
+    })
   });
-
-  it("has correct symbol", async () => {
-    expect(await token.symbol()).to.equal('DAPP');
-  });
-
-  it('has correct decimals', async () => {
-    expect(await token.decimals()).to.equal(18);
-  })
-
-  it('has correct total supply', async () => {
-    const value = tokens('1000000');
-    expect(await token.totalSupply()).to.equal(value);
-  })
+  
 });
