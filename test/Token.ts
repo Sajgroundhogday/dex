@@ -7,14 +7,15 @@ let tokens = (eth: string) => {
 describe("Token contract", function () {
   let token: any;
   let deployer: any;
+  let receiver: any;
   let accounts: any;
   beforeEach(async ()=>{
     const Token = await ethers.getContractFactory('Token');
     token = await Token.deploy("DApp University", 'DAPP', 1000000);
 
     let accounts = await ethers.getSigners();
-    console.log(accounts);
     deployer = accounts[0];
+    receiver = accounts[1];
   })
   describe('Deployment', ()=> {
     const name = 'DApp University';
@@ -42,5 +43,27 @@ describe("Token contract", function () {
       expect(await token.balanceOf(deployer.address)).to.equal(totalSupply);
     })
   });
-  
+
+  describe('Sending tokens', () => {
+    let transaction: any;
+    let result: any;
+    describe('Success', () => {
+      beforeEach(async () => {
+        transaction = await token.connect(deployer).transfer(receiver.address , tokens('100'));
+        result = await transaction.wait();
+      })
+      it("transfer token balances", async () => {
+        //transfer tokens
+        expect(await token.balanceOf(deployer.address)).to.equal(tokens('999900'));
+        expect(await token.balanceOf(receiver.address)).to.equal(tokens('100'));
+      })
+    })
+    describe('Failure', () => {
+      it('rejects insufficient balances', async () => {
+        let invalidAmount = tokens('10000000000000');
+        await expect(token.connect(deployer).transfer(receiver.address , invalidAmount)).to.be.reverted;
+      })
+    })
+    
+  })
 });

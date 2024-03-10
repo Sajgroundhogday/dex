@@ -11,8 +11,22 @@ contract Token {
     uint public decimals = 18;
     uint public totalSupply;
 
-
+    //mappings
     mapping(address => uint) public balanceOf;
+
+
+    //events
+    event Transfer(
+        address indexed _from,
+        address indexed _to,
+        uint _value 
+    );
+
+    event Approval(
+        address indexed _owner,
+        address indexed _spender,
+        uint _value
+    );
 
     constructor(string memory _name, string memory _symbol, uint _totalSupply) {
         name = _name;
@@ -22,9 +36,17 @@ contract Token {
     }
     
     function transfer(address _to, uint _value) public returns (bool success) {
+        
+        require(balanceOf[msg.sender] >= _value);
+        require(_to != address(0));
+        
         //deduct the token from spender.
         balanceOf[msg.sender] -=  _value;
         //credit to receiver.
         balanceOf[_to] += _value;
+
+        //emit transfer event
+        emit Transfer(msg.sender, _to , _value);
+        return true;
     }
 }
