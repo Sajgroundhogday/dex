@@ -35,15 +35,17 @@ contract Token {
         balanceOf[msg.sender] = totalSupply;
     }
     
+    function _transfer(address _from , address _to, uint _value) internal {
+        require(_to != address(0));
+        balanceOf[_from]  = balanceOf[_from] - _value;
+        balanceOf[_to] = balanceOf[_to] + _value;
+    }
     function transfer(address _to, uint _value) public returns (bool success) {
         
         require(balanceOf[msg.sender] >= _value);
         require(_to != address(0));
         
-        //deduct the token from spender.
-        balanceOf[msg.sender] -=  _value;
-        //credit to receiver.
-        balanceOf[_to] += _value;
+        _transfer(msg.sender, _to, _value);
 
         //emit transfer event
         emit Transfer(msg.sender, _to , _value);
@@ -51,7 +53,14 @@ contract Token {
     }
 
     function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
-
+        require(_value <= balanceOf[_from]);
+        require(_value <= allowance[_from][msg.sender]);
+        
+        //reset allowance
+        allowance[_from][msg.sender] -= _value;
+        //spend tokens
+        _transfer(_from, _to, _value);
+        return true;
     }
 
     function approve(address _spender, uint _value) public returns(bool success) {
@@ -60,4 +69,6 @@ contract Token {
         emit Approval(msg.sender, _spender , _value);
         return true;
     }
+
+
 }
