@@ -13,7 +13,7 @@ contract Token {
 
     //mappings
     mapping(address => uint) public balanceOf;
-
+    mapping(address => mapping(address => uint)) public allowance;
 
     //events
     event Transfer(
@@ -47,6 +47,17 @@ contract Token {
 
         //emit transfer event
         emit Transfer(msg.sender, _to , _value);
+        return true;
+    }
+
+    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+
+    }
+
+    function approve(address _spender, uint _value) public returns(bool success) {
+        require(_spender != address(0));
+        allowance[msg.sender][_spender] = _value; 
+        emit Approval(msg.sender, _spender , _value);
         return true;
     }
 }

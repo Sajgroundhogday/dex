@@ -9,6 +9,7 @@ describe("Token contract", function () {
   let deployer: any;
   let receiver: any;
   let accounts: any;
+  let exchange: any;
   beforeEach(async ()=>{
     const Token = await ethers.getContractFactory('Token');
     token = await Token.deploy("DApp University", 'DAPP', 1000000);
@@ -16,6 +17,7 @@ describe("Token contract", function () {
     let accounts = await ethers.getSigners();
     deployer = accounts[0];
     receiver = accounts[1];
+    exchange = accounts[2];
   })
   describe('Deployment', ()=> {
     const name = 'DApp University';
@@ -65,5 +67,27 @@ describe("Token contract", function () {
       })
     })
     
+  })
+
+  describe('Approving tokens', () => {
+    let transaction: any;
+    let result: any;
+    describe('Success', () => {
+      beforeEach(async () => {
+        transaction = await token.connect(deployer).approve(exchange.address , tokens('100'));
+        result = await transaction.wait();
+      })
+      it("allocates an allowance for delegated token sending", async () => {
+        //transfer tokens
+        token.allowance(deployer.address, exchange.address);
+        expect(await token.allowance(deployer.address, exchange.address)).to.equal(tokens('100'));
+      })
+    })
+    describe('Failure', () => {
+      it('rejects insufficient balances', async () => {
+        let invalidAmount = tokens('10000000000000');
+        await expect(token.connect(deployer).transfer(receiver.address , invalidAmount)).to.be.reverted;
+      })
+    })
   })
 });
