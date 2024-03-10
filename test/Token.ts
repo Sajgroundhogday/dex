@@ -6,9 +6,15 @@ let tokens = (eth: string) => {
 };
 describe("Token contract", function () {
   let token: any;
+  let deployer: any;
+  let accounts: any;
   beforeEach(async ()=>{
     const Token = await ethers.getContractFactory('Token');
     token = await Token.deploy("DApp University", 'DAPP', 1000000);
+
+    let accounts = await ethers.getSigners();
+    console.log(accounts);
+    deployer = accounts[0];
   })
   describe('Deployment', ()=> {
     const name = 'DApp University';
@@ -30,6 +36,10 @@ describe("Token contract", function () {
   
     it('has correct total supply', async () => {
       expect(await token.totalSupply()).to.equal(totalSupply);
+    })
+
+    it('assigns total supply to deployer', async () => {
+      expect(await token.balanceOf(deployer.address)).to.equal(totalSupply);
     })
   });
   
